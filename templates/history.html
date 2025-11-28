@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Your Health History</title>
+
+    <style>
+        body {
+            font-family: "Segoe UI", Arial, sans-serif;
+            background: #e3f2fd;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .box {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: #ffffff;
+            padding: 18px 20px;
+            border-radius: 14px;
+            box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+        }
+
+        /* Top bar */
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.9rem;
+            margin-bottom: 8px;
+        }
+
+        .brand {
+            font-weight: 700;
+            color: #1a237e;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .user-info a {
+            color: #3949ab;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        a.btn-small {
+            padding: 4px 10px;
+            border-radius: 999px;
+            background: #3f51b5;
+            color: #fff !important;
+            font-size: 0.8rem;
+        }
+
+        h1 {
+            margin: 12px 0 10px;
+            text-align: center;
+            color: #1a237e;
+        }
+
+        .top-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        a.btn {
+            text-decoration: none;
+            font-size: 0.85rem;
+            background: #3f51b5;
+            color: #fff;
+            padding: 6px 12px;
+            border-radius: 999px;
+            margin-left: 6px;
+        }
+
+        a.delete-all-btn {
+            background: #d32f2f !important;
+        }
+
+        a.delete-row-btn {
+            text-decoration: none;
+            font-size: 0.8rem;
+            background: #ef5350;
+            color: #fff;
+            padding: 4px 8px;
+            border-radius: 999px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+            margin-top: 6px;
+        }
+
+        th, td {
+            border: 1px solid #e0e0e0;
+            padding: 6px 8px;
+            text-align: center;
+        }
+
+        th {
+            background: #e8eaf6;
+        }
+
+        tbody tr:nth-child(even) {
+            background: #fafafa;
+        }
+
+        /* Abnormal row highlight */
+        .abnormal-row {
+            background: #ffebee !important;
+        }
+
+        .charts {
+            margin-top: 22px;
+        }
+
+        .chart-box {
+            background: #f5f7ff;
+            border-radius: 12px;
+            padding: 12px;
+            border: 1px solid #e0e3ff;
+            margin-bottom: 14px;
+        }
+
+        .chart-box h2 {
+            margin: 0 0 8px;
+            font-size: 1rem;
+            color: #1a237e;
+        }
+    </style>
+</head>
+<body>
+
+<div class="box">
+
+    <!-- Top bar -->
+    <div class="top-bar">
+        <div class="brand">Health Analyzer</div>
+
+        <div class="user-info">
+            {% if user_id %}
+                <span>Logged in as <strong>{{ user_name }}</strong></span>
+                <a href="/logout" class="btn-small">Logout</a>
+            {% else %}
+                <span>Guest mode</span>
+                <a href="/login">Login</a>
+                <a href="/register" class="btn-small">Register</a>
+            {% endif %}
+        </div>
+    </div>
+
+    <h1>Your Health History</h1>
+
+    <div class="top-actions">
+        <a href="/" class="btn">← Back</a>
+
+        <div>
+            <a href="/export_csv" class="btn">Download CSV</a>
+
+            <a href="/clear_history"
+               class="btn delete-all-btn"
+               onclick="return confirm('Clear ALL your reports? This cannot be undone.');">
+                Clear History
+            </a>
+        </div>
+    </div>
+
+    {% if reports %}
+        <div style="overflow-x:auto; max-height:350px; overflow-y:auto;">
+            <table>
+                <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Date &amp; Time</th>
+                    <th>Hemoglobin</th>
+                    <th>Fasting Sugar</th>
+                    <th>BP</th>
+                    <th>Cholesterol</th>
+                    <th>Height</th>
+                    <th>Weight</th>
+                    <th>BMI</th>
+                    <th>Actions</th>
+                </tr>
+                </thead>
+
+                <tbody>
+                {% for r in reports %}
+
+                    {% set abnormal =
+                        (r['hb'] != None and (r['hb'] < 12 or r['hb'] > 16)) or
+                        (r['sugar'] != None and (r['sugar'] < 70 or r['sugar'] > 125)) or
+                        (r['bp_sys'] != None and (r['bp_sys'] < 90 or r['bp_sys'] > 140)) or
+                        (r['bp_dia'] != None and (r['bp_dia'] < 60 or r['bp_dia'] > 90)) or
+                        (r['chol'] != None and r['chol'] > 200) or
+                        (r['bmi'] != None and (r['bmi'] < 18.5 or r['bmi'] > 24.9))
+                    %}
+
+                    <tr class="{% if abnormal %}abnormal-row{% endif %}">
+                        <td>{{ r['id'] }}</td>
+                        <td>{{ r['created_at'] }}</td>
+                        <td>{{ r['hb'] }}</td>
+                        <td>{{ r['sugar'] }}</td>
+                        <td>{{ r['bp_sys'] }}/{{ r['bp_dia'] }}</td>
+                        <td>{{ r['chol'] }}</td>
+                        <td>{{ r['height_cm'] }}</td>
+                        <td>{{ r['weight_kg'] }}</td>
+                        <td>
+                            {% if r['bmi'] != None %}
+                                {{ "%.1f"|format(r['bmi']) }}
+                            {% endif %}
+                        </td>
+                        <td>
+                            <a
+                                href="/delete/{{ r['id'] }}"
+                                class="delete-row-btn"
+                                data-msg="Delete this report (ID {{ r['id'] }})?"
+                                onclick="return confirm(this.getAttribute('data-msg'));"
+                            >
+                                Delete
+                            </a>
+                        </td>
+                    </tr>
+
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Hidden data for charts -->
+        <div id="chart-data-labels" data-json='{{ labels | tojson | safe }}'></div>
+        <div id="chart-data-sugar"  data-json='{{ sugar_values | tojson | safe }}'></div>
+        <div id="chart-data-bmi"    data-json='{{ bmi_values | tojson | safe }}'></div>
+
+        <div class="charts">
+            <div class="chart-box">
+                <h2>Fasting Sugar Trend</h2>
+                <canvas id="sugarChart" height="120"></canvas>
+            </div>
+
+            <div class="chart-box">
+                <h2>BMI Trend</h2>
+                <canvas id="bmiChart" height="120"></canvas>
+            </div>
+        </div>
+
+    {% else %}
+        <p>No reports found.</p>
+    {% endif %}
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+    // Get JSON from data-* attributes (pure JS, no Jinja here)
+    function getChartData(id) {
+        const el = document.getElementById(id);
+        if (!el) return [];
+        const txt = el.getAttribute('data-json') || '[]';
+        try {
+            return JSON.parse(txt);
+        } catch (e) {
+            console.error('Invalid JSON in', id, e);
+            return [];
+        }
+    }
+
+    const chartLabels = getChartData('chart-data-labels');
+    const chartSugar  = getChartData('chart-data-sugar');
+    const chartBmi    = getChartData('chart-data-bmi');
+
+    if (Array.isArray(chartLabels) && chartLabels.length > 0) {
+        const sctx = document.getElementById('sugarChart').getContext('2d');
+        new Chart(sctx, {
+            type: 'line',
+            data: {
+                labels: chartLabels,
+                datasets: [{
+                    label: 'Fasting Sugar (mg/dL)',
+                    data: chartSugar,
+                    borderWidth: 2,
+                    fill: false
+                }]
+            }
+        });
+
+        const bctx = document.getElementById('bmiChart').getContext('2d');
+        new Chart(bctx, {
+            type: 'line',
+            data: {
+                labels: chartLabels,
+                datasets: [{
+                    label: 'BMI',
+                    data: chartBmi,
+                    borderWidth: 2,
+                    fill: false
+                }]
+            }
+        });
+    }
+</script>
+
+</body>
+</html>

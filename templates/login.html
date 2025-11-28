@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Login - Health Analyzer</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: "Segoe UI", Arial, sans-serif;
+            background: linear-gradient(135deg, #e0f7fa, #e3f2fd);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .card {
+            background: #ffffff;
+            width: 100%;
+            max-width: 380px;
+            border-radius: 16px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+            padding: 22px 24px 26px;
+        }
+
+        h1 {
+            margin: 0 0 10px;
+            font-size: 1.5rem;
+            color: #1a237e;
+            text-align: center;
+        }
+
+        p.sub {
+            margin: 0 0 16px;
+            font-size: 0.85rem;
+            color: #555;
+            text-align: center;
+        }
+
+        form {
+            margin-top: 6px;
+        }
+
+        label {
+            display: block;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 4px;
+            color: #37474f;
+        }
+
+        input[type="email"],
+        input[type="password"] {
+            width: 100%;
+            padding: 7px 8px;
+            border-radius: 8px;
+            border: 1px solid #cfd8dc;
+            font-size: 0.9rem;
+            outline: none;
+            margin-bottom: 10px;
+        }
+
+        input:focus {
+            border-color: #3f51b5;
+            box-shadow: 0 0 0 2px rgba(63, 81, 181, 0.15);
+        }
+
+        button {
+            width: 100%;
+            padding: 9px 12px;
+            border-radius: 999px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.95rem;
+            background: #3f51b5;
+            color: #ffffff;
+            margin-top: 4px;
+        }
+
+        button:hover {
+            opacity: 0.96;
+        }
+
+        .error {
+            background: #ffebee;
+            color: #c62828;
+            border-radius: 8px;
+            padding: 6px 8px;
+            font-size: 0.8rem;
+            margin-bottom: 8px;
+        }
+
+        .links {
+            margin-top: 10px;
+            font-size: 0.8rem;
+            text-align: center;
+        }
+
+        .links a {
+            color: #3949ab;
+            text-decoration: none;
+        }
+
+        .back-link {
+            font-size: 0.8rem;
+            margin-bottom: 6px;
+        }
+
+        .back-link a {
+            color: #3949ab;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <div class="back-link">
+        <a href="/">← Back to Analyzer</a>
+    </div>
+
+    <h1>Login</h1>
+    <p class="sub">Log in to view your personal health history.</p>
+
+    {% if error %}
+        <div class="error">{{ error }}</div>
+    {% endif %}
+
+    <form method="POST">
+        <label>Email</label>
+        <input type="email" name="email" required>
+
+        <label>Password</label>
+        <input type="password" name="password" required>
+
+        <button type="submit">Login</button>
+    </form>
+
+    <div class="links">
+        <p>Don't have an account? <a href="/register">Create one</a></p>
+    </div>
+</div>
+
+</body>
+</html>
+        
